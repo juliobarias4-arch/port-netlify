@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Portal Contabilidad</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="mark">CA</div>
+        <div>
+          <strong>Contabilidad</strong>
+          <span>Portal remoto</span>
+        </div>
+      </div>
+      <nav id="nav" class="nav" hidden>
+        <button data-view="summary" class="active">Resumen</button>
+        <button data-view="cuotas">Cuotas</button>
+        <button data-view="deudas">Deudas</button>
+        <button data-view="ingresos">Ingresos</button>
+        <button data-view="egresos">Egresos</button>
+        <button data-view="historial">Historial</button>
+        <button data-view="record">Record</button>
+      </nav>
+      <div class="side-note">
+        <span>Solo lectura</span>
+        <small id="statusText">Verificando sincronización...</small>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h1 id="pageTitle">Portal remoto</h1>
+          <p id="syncMeta">Última sincronización no disponible</p>
+        </div>
+        <button id="logoutBtn" class="ghost" hidden>Cerrar sesión</button>
+      </header>
+
+      <section id="loginView" class="login-panel">
+        <div class="login-card">
+          <div class="lock">🔒</div>
+          <h2>Entrar al portal</h2>
+          <p>Usa las dos contraseñas configuradas en la app principal.</p>
+          <form id="loginForm">
+            <label>
+              Contraseña 1
+              <input id="password1" type="password" autocomplete="current-password" required>
+            </label>
+            <label>
+              Contraseña 2
+              <input id="password2" type="password" autocomplete="current-password" required>
+            </label>
+            <button type="submit">Cargar datos</button>
+          </form>
+          <p id="loginMessage" class="message"></p>
+        </div>
+      </section>
+
+      <section id="appView" class="content" hidden></section>
+    </main>
+  </div>
+  <script src="/app.js" type="module"></script>
+</body>
+</html>
