@@ -8,6 +8,8 @@ export interface Totals {
   expenses: number;
   balance: number;
   debt: number;
+  legacy_paid?: number;
+  legacy_pending?: number;
 }
 
 export interface MonthlyPoint {
@@ -56,9 +58,20 @@ export interface PendingDebtor {
   total_due: number;
 }
 
+export interface LegacyDebt {
+  id: number;
+  doctor_name: string;
+  concept: string;
+  amount: number;
+  paid: number; // 0 | 1
+  created_date: string;
+  paid_date: string | null;
+}
+
 export interface Deudas {
   pending: PendingDebtor[];
   totals?: Record<string, unknown>;
+  legacy?: LegacyDebt[];
 }
 
 export interface MovementRecord {

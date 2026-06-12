@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronRight, ShieldCheck } from "lucide-react";
+import { ChevronRight, ShieldCheck, History, CheckCircle2 } from "lucide-react";
 import { SectionShell } from "@/components/shared/SectionShell";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -16,11 +16,95 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { useSnapshotData } from "@/context/SnapshotContext";
-import type { PendingDebtor } from "@/types/snapshot";
+import type { PendingDebtor, LegacyDebt } from "@/types/snapshot";
+
+function LegacyDebtsSection({ legacy }: { legacy: LegacyDebt[] }) {
+  const pendingTotal = legacy
+    .filter((d) => !d.paid)
+    .reduce((s, d) => s + d.amount, 0);
+
+  return (
+    <Card className="mt-6 overflow-hidden">
+      <div className="flex items-center justify-between border-b border-border px-6 py-4">
+        <div>
+          <h3 className="text-h3 text-foreground">Deudas anteriores</h3>
+          <p className="text-small text-muted-foreground">
+            Deudas de antes del inicio del programa (julio 2026)
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-caption uppercase tracking-wide text-muted-foreground">
+            Pendiente
+          </p>
+          <MoneyCell value={pendingTotal} tone="danger" className="text-h3" />
+        </div>
+      </div>
+
+      {legacy.length === 0 ? (
+        <div className="flex flex-col items-center gap-2 px-6 py-10 text-center">
+          <History className="size-7 text-muted-foreground" />
+          <p className="text-body text-muted-foreground">
+            No hay deudas anteriores registradas.
+          </p>
+        </div>
+      ) : (
+        <ul className="divide-y divide-border">
+          {legacy.map((d) => (
+            <li
+              key={d.id}
+              className={`flex items-center justify-between gap-4 px-6 py-4 ${
+                d.paid ? "opacity-60" : ""
+              }`}
+            >
+              <div className="flex min-w-0 items-center gap-3">
+                <div
+                  className={`flex size-10 shrink-0 items-center justify-center rounded-full ${
+                    d.paid ? "bg-primary-100" : "bg-danger-50"
+                  }`}
+                >
+                  <span
+                    className={`text-caption font-bold ${
+                      d.paid ? "text-primary-700" : "text-danger-600"
+                    }`}
+                  >
+                    {d.doctor_name.slice(0, 2)}
+                  </span>
+                </div>
+                <div className="min-w-0">
+                  <p className="text-body-medium text-foreground">{d.doctor_name}</p>
+                  <p className="truncate text-small text-muted-foreground">
+                    {d.concept}
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div>
+                  <MoneyCell
+                    value={d.amount}
+                    tone={d.paid ? "muted" : "danger"}
+                    className="text-body-medium"
+                  />
+                </div>
+                {d.paid ? (
+                  <span className="flex items-center justify-end gap-1 text-caption font-medium text-success-600">
+                    <CheckCircle2 className="size-3.5" /> Pagada
+                  </span>
+                ) : (
+                  <span className="block text-caption text-muted-foreground">Pendiente</span>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Card>
+  );
+}
 
 export function DeudasView() {
   const data = useSnapshotData();
   const { pending } = data.deudas;
+  const legacy = data.deudas.legacy ?? [];
   const [selected, setSelected] = useState<PendingDebtor | null>(null);
 
   function rankOf(doctor: string) {
@@ -37,6 +121,7 @@ export function DeudasView() {
           description="Todos los residentes están al día con sus cuotas."
           className="bg-success-50/40"
         />
+        <LegacyDebtsSection legacy={legacy} />
       </SectionShell>
     );
   }
@@ -97,6 +182,9 @@ export function DeudasView() {
           <AgingBars pending={pending} periodMonths={data.cuotas.period_months} />
         </DataCard>
       </div>
+
+      {/* Legacy debts */}
+      <LegacyDebtsSection legacy={legacy} />
 
       {/* Detail sheet */}
       <Sheet open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>

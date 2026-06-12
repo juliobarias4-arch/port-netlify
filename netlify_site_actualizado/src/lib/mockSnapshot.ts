@@ -238,7 +238,14 @@ export const mockSnapshot: Snapshot = {
       monthly,
     },
     cuotas: { grid, period_months, payable_keys },
-    deudas: { pending },
+    deudas: {
+      pending,
+      legacy: [
+        { id: 1, doctor_name: "ALEJO", concept: "Cuotas pendientes 2024-2025", amount: 1500, paid: 0, created_date: "2026-06-10", paid_date: null },
+        { id: 2, doctor_name: "HERRERA", concept: "Deuda periodo anterior", amount: 1000, paid: 0, created_date: "2026-06-10", paid_date: null },
+        { id: 3, doctor_name: "BRITO", concept: "Cuota mayo 2026", amount: 500, paid: 1, created_date: "2026-06-09", paid_date: "2026-06-11" },
+      ],
+    },
     ingresos: { records: ingresosRecords },
     egresos: { records: egresosRecords },
     historial: { log: historialLog },
