@@ -9,10 +9,8 @@ import { cn } from "@/lib/utils";
 export function LoginView() {
   const { login, isAuthenticated } = useSnapshot();
   const navigate = useNavigate();
-  const [pw1, setPw1] = useState("");
-  const [pw2, setPw2] = useState("");
-  const [show1, setShow1] = useState(false);
-  const [show2, setShow2] = useState(false);
+  const [pw, setPw] = useState("");
+  const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [shake, setShake] = useState(false);
@@ -25,12 +23,12 @@ export function LoginView() {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    const ok = await login({ password_1: pw1, password_2: pw2 });
+    const ok = await login({ password: pw });
     setLoading(false);
     if (ok) {
       navigate("/", { replace: true });
     } else {
-      setError("Contraseñas incorrectas. Verifica e intenta de nuevo.");
+      setError("Contraseña incorrecta. Verifica e intenta de nuevo.");
       setShake(true);
       setTimeout(() => setShake(false), 450);
     }
@@ -82,26 +80,18 @@ export function LoginView() {
           <div className="hidden lg:block">
             <h2 className="text-h1 text-foreground">Acceder</h2>
             <p className="mt-1 text-small text-muted-foreground">
-              Ingresa las dos contraseñas de consulta.
+              Ingresa tu contraseña de consulta.
             </p>
           </div>
 
           <PasswordField
-            id="pw1"
-            label="Contraseña 1"
-            value={pw1}
-            onChange={setPw1}
-            show={show1}
-            onToggle={() => setShow1((s) => !s)}
+            id="pw"
+            label="Contraseña"
+            value={pw}
+            onChange={setPw}
+            show={show}
+            onToggle={() => setShow((s) => !s)}
             autoFocus
-          />
-          <PasswordField
-            id="pw2"
-            label="Contraseña 2"
-            value={pw2}
-            onChange={setPw2}
-            show={show2}
-            onToggle={() => setShow2((s) => !s)}
           />
 
           {error && (

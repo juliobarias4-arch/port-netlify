@@ -17,13 +17,15 @@ export default async function handler(req) {
     return jsonResponse({ ok: false, error: "JSON inválido." }, 400);
   }
 
-  const pw1 = String(body?.password_1 || "");
-  const pw2 = String(body?.password_2 || "");
-  const ok1 = verifyPassword(pw1, snapshot.auth?.password_1_hash || "");
-  const ok2 = verifyPassword(pw2, snapshot.auth?.password_2_hash || "");
+  // Acceso con UNA sola contraseña: basta que coincida con cualquiera de las
+  // dos claves configuradas. Así dos personas distintas pueden entrar cada una
+  // con su propia clave (separación de responsabilidades).
+  const password = String(body?.password ?? body?.password_1 ?? "");
+  const matches1 = verifyPassword(password, snapshot.auth?.password_1_hash || "");
+  const matches2 = verifyPassword(password, snapshot.auth?.password_2_hash || "");
 
-  if (!ok1 || !ok2) {
-    return jsonResponse({ ok: false, error: "Contraseñas incorrectas." }, 401);
+  if (!matches1 && !matches2) {
+    return jsonResponse({ ok: false, error: "Contraseña incorrecta." }, 401);
   }
 
   return jsonResponse({

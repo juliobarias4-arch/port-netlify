@@ -166,6 +166,5 @@ export interface StatusResponse {
 }
 
 export interface Credentials {
-  password_1: string;
-  password_2: string;
+  password: string;
 }

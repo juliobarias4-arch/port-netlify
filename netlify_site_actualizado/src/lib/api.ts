@@ -45,11 +45,11 @@ export async function fetchStatus(): Promise<StatusResponse> {
  * Throws AuthError on 401, NetworkError on unreachable endpoints in prod.
  */
 export async function fetchSnapshot(creds: Credentials): Promise<Snapshot> {
-  // DEV / localhost: accept any non-empty pair and serve the fixture.
+  // DEV / localhost: accept any non-empty password and serve the fixture.
   if (isDev || isLocalHost()) {
     await delay(450); // simulate latency so skeletons are visible
-    if (!creds.password_1.trim() || !creds.password_2.trim()) {
-      throw new AuthError("Ingresa ambas contraseñas.");
+    if (!creds.password.trim()) {
+      throw new AuthError("Ingresa tu contraseña.");
     }
     return structuredClone(mockSnapshot);
   }
