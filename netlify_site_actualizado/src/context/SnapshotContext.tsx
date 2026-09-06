@@ -4,6 +4,8 @@ import {
   useReducer,
   useCallback,
   useMemo,
+  useEffect,
+  useRef,
   type ReactNode,
 } from "react";
 import type { Credentials, Snapshot } from "@/types/snapshot";
@@ -24,6 +26,7 @@ type Action =
   | { type: "LOGIN_SUCCESS"; snapshot: Snapshot; creds: Credentials }
   | { type: "LOGIN_ERROR"; error: string }
   | { type: "REFRESH_START" }
+  | { type: "DATA_UPDATED"; snapshot: Snapshot }
   | { type: "LOGOUT" };
 
 const initialState: State = {
@@ -46,6 +49,10 @@ function reducer(state: State, action: Action): State {
         creds: action.creds,
         error: null,
       };
+    case "DATA_UPDATED":
+      // Auto-refresco silencioso: reemplaza los datos sin tocar el estado
+      // (no muestra "loading" ni spinner), para actualizacion en vivo.
+      return { ...state, snapshot: action.snapshot };
     case "LOGIN_ERROR":
       return { ...state, status: "error", error: action.error };
     case "LOGOUT":
@@ -104,6 +111,28 @@ export function SnapshotProvider({ children }: { children: ReactNode }) {
   }, [state.creds]);
 
   const logout = useCallback(() => dispatch({ type: "LOGOUT" }), []);
+
+  // Auto-refresco en vivo: mientras haya sesion, re-consulta /api/data cada 25s
+  // de forma silenciosa (sin spinner). Asi la web refleja los cambios de la app
+  // sin que el usuario tenga que recargar ni tocar el boton de refresco.
+  const credsRef = useRef<Credentials | null>(null);
+  credsRef.current = state.creds;
+  useEffect(() => {
+    if (state.status !== "authenticated") return;
+    const id = window.setInterval(async () => {
+      const creds = credsRef.current;
+      if (!creds) return;
+      if (document.hidden) return; // no consultar si la pestana no esta visible
+      try {
+        const snapshot = await fetchSnapshot(creds);
+        dispatch({ type: "DATA_UPDATED", snapshot });
+      } catch {
+        // Silencioso: un fallo puntual de red no debe desloguear ni alarmar;
+        // el siguiente intento (o el refresco manual) lo recupera.
+      }
+    }, 25000);
+    return () => window.clearInterval(id);
+  }, [state.status]);
 
   const value = useMemo<SnapshotContextValue>(
     () => ({
